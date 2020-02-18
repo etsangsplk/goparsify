@@ -10,7 +10,11 @@ import (
 	"strings"
 )
 
-var varRegex = regexp.MustCompile(`(?:var)?\s*(\w*)\s*:?=`)
+var varRegex *Regexp
+
+func init() {
+	varRegex = regexp.MustCompile(`(?:var)?\s*(\w*)\s*:?=`)
+}
 
 func getPackageName(f runtime.Frame) string {
 	parts := strings.Split(f.Func.Name(), ".")
