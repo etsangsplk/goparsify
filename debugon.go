@@ -62,23 +62,19 @@ func (dp *debugParser) logf(ps *State, result *Result, format string, args ...in
 }
 
 func (dp *debugParser) logStart(ps *State) {
-	if log != nil {
-		if pendingOpenLog != "" {
-			fmt.Fprint(log, pendingOpenLog)
-			pendingOpenLog = ""
-		}
-		pendingOpenLog = dp.logf(ps, nil, dp.Name()+" {")
+	if pendingOpenLog != "" {
+		fmt.Fprint(log, pendingOpenLog)
+		pendingOpenLog = ""
 	}
+	pendingOpenLog = dp.logf(ps, nil, dp.Name()+" {")
 }
 
 func (dp *debugParser) logEnd(ps *State, result *Result) {
-	if log != nil {
-		if pendingOpenLog != "" {
-			fmt.Fprint(log, dp.logf(ps, result, dp.Name()))
-			pendingOpenLog = ""
-		} else {
-			fmt.Fprint(log, dp.logf(ps, result, "}"))
-		}
+	if pendingOpenLog != "" {
+		fmt.Fprint(log, dp.logf(ps, result, dp.Name()))
+		pendingOpenLog = ""
+	} else {
+		fmt.Fprint(log, dp.logf(ps, result, "}"))
 	}
 }
 
@@ -129,6 +125,14 @@ func NewParser(name string, p Parser) Parser {
 	return dp.Parse
 }
 
+type NullWriter struct {
+	io.Writer
+}
+
+func (n *NullWriter) Write(p []byte) (int, error) {
+	return 0, nil
+}
+
 // EnableLogging will write logs to the given writer as the next parse happens
 func EnableLogging(w io.Writer) {
 	log = w
@@ -136,7 +140,7 @@ func EnableLogging(w io.Writer) {
 
 // DisableLogging will stop writing logs
 func DisableLogging() {
-	log = nil
+	log = &NullWriter{}
 }
 
 // DumpDebugStats will print out the curring timings for each parser if built with -tags debug
