@@ -1,7 +1,9 @@
-package goparsify
+package main
 
 import (
 	"fmt"
+
+	. "github.com/oec/goparsify"
 )
 
 func ExampleCut() {
